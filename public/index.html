@@ -1,0 +1,169 @@
+<!-- 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SwiftStream - YouTube Downloader</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🎬 SwiftStream</h1>
+    <form id="fetchForm">
+      <input type="text" id="url" placeholder="Paste YouTube URL here..." required />
+      <button type="submit">Fetch Info</button>
+    </form>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("fetchForm");
+    const resultDiv = document.getElementById("result");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const url = document.getElementById("url").value;
+
+      resultDiv.innerHTML = "<p>⏳ Fetching video info...</p>";
+
+      try {
+        const res = await fetch(`/info?url=${encodeURIComponent(url)}`);
+        const data = await res.json();
+
+        if (data.error) {
+          resultDiv.innerHTML = `<p style="color:red">${data.error}</p>`;
+        } else {
+          resultDiv.innerHTML = `
+            <h2>${data.title}</h2>
+            <img src="${data.thumbnail_url}" alt="Thumbnail" width="400"><br><br>
+            <p><b>Author:</b> ${data.author_name}</p>
+            <a href="/download?url=${encodeURIComponent(url)}" class="download-btn">⬇ Download Video</a>
+          `;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = "<p style='color:red'>❌ Failed to fetch info</p>";
+      }
+    });
+  </script>
+  
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftStream - YouTube Downloader</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #2a2a40);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #00ffcc;
+      text-shadow: 0 0 8px #00ffcc;
+    }
+    .container {
+      background: #2e2e44;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+    }
+    input {
+      width: 80%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 15px;
+      font-size: 1rem;
+    }
+    button {
+      background: #00ffcc;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin: 10px 5px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #00cc99;
+    }
+    #videoContainer {
+      margin-top: 20px;
+    }
+    iframe {
+      width: 100%;
+      height: 315px;
+      border-radius: 10px;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>SwiftStream</h1>
+  <div class="container">
+    <input type="text" id="urlInput" placeholder="Enter YouTube URL">
+    <br>
+    <button id="fetchBtn">🎥 Get Video</button>
+
+    <div id="videoContainer"></div>
+  </div>
+
+  <script>
+    // Preview video
+    document.getElementById("fetchBtn").addEventListener("click", () => {
+      const url = document.getElementById("urlInput").value;
+      const videoContainer = document.getElementById("videoContainer");
+      videoContainer.innerHTML = "";
+
+      if (url.includes("youtube.com") || url.includes("youtu.be")) {
+        let videoId = "";
+        if (url.includes("v=")) {
+          videoId = new URL(url).searchParams.get("v");
+        } else if (url.includes("youtu.be")) {
+          videoId = url.split("/").pop();
+        } else if (url.includes("shorts/")) {
+          videoId = url.split("shorts/")[1].split("?")[0];
+        }
+
+        if (videoId) {
+          // Show video
+          videoContainer.innerHTML = `
+            <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
+            <br>
+            <button id="downloadBtn">⬇ Download Highest Quality</button>
+          `;
+
+          // Attach download event after rendering
+          document.getElementById("downloadBtn").addEventListener("click", () => {
+            window.location.href = `/download?url=${encodeURIComponent(url)}`;
+          });
+
+        } else {
+          videoContainer.innerHTML = "<p>❌ Invalid YouTube URL</p>";
+        }
+      } else {
+        videoContainer.innerHTML = "<p>❌ Please enter a valid YouTube URL</p>";
+      }
+    });
+  </script>
+</body>
+</html>
